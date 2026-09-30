@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffd400" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161617" media="(prefers-color-scheme: dark)">
+<title>ระบบบันทึกพัสดุยาเสพติด · ด่านตรวจยานพาหนะชุมพร</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="styles.css">
+<script src="util.js" defer></script>
+<script src="parser.js" defer></script>
+<script src="sheet.js" defer></script>
+<script src="db.js" defer></script>
+<script src="network.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body data-view="list">
+
+<!-- ไอคอนทั้งหมดของแอพ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
+  <symbol id="i-sheet" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></symbol>
+  <symbol id="i-graph" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/></symbol>
+  <symbol id="i-network" viewBox="0 0 24 24"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></symbol>
+  <symbol id="i-zoom-in" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></symbol>
+  <symbol id="i-zoom-out" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-pill" viewBox="0 0 24 24"><path d="M10 2v7.53a2 2 0 0 1-.21.9L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.07-10.12a2 2 0 0 1-.21-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="i-recv" viewBox="0 0 24 24"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><path d="M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1Z"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M11 14h10"/><path d="m17 10 4 4-4 4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+  <!-- กล่องพัสดุสามมิติ: สีของแต่ละด้านกำหนดด้วยตัวแปร CSS (--pb-*) ตามบทบาท ดู .pbox ใน styles.css -->
+  <symbol id="i-pbox" viewBox="0 0 24 24">
+    <path style="fill:var(--pb-top)" d="M12 2.5 21 7 12 11.5 3 7Z"/>
+    <path style="fill:var(--pb-left)" d="M3 7 12 11.5V21.5L3 17Z"/>
+    <path style="fill:var(--pb-right)" d="M12 11.5 21 7V17L12 21.5Z"/>
+    <path style="fill:var(--pb-tape)" d="M8.58 4.21 17.58 8.71 15.42 9.79 6.42 5.29Z"/>
+    <path style="fill:var(--pb-tape2)" d="M15.42 9.79 17.58 8.71V18.71L15.42 19.79Z"/>
+    <path style="fill:none;stroke:var(--pb-edge);stroke-width:.8" d="M3 7 12 11.5 21 7M12 11.5V21.5"/>
+    <path style="fill:none;stroke:var(--pb-line);stroke-width:1;stroke-linejoin:round" d="M12 2.5 21 7V17L12 21.5 3 17V7Z"/>
+  </symbol>
+  <symbol id="i-idcard" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.5-1.4 1.6-2.2 3-2.2s2.5.8 3 2.2"/><path d="M14 10h5"/><path d="M14 14h3"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+</svg>
+
+<header class="appbar" id="appbar">
+  <div class="appbar-inner">
+    <a class="brand" href="#/list" aria-label="ระบบบันทึกพัสดุยาเสพติด หน้าแรก">
+      <span class="logo">
+        <img src="logo.png" alt="" onerror="this.remove();document.documentElement.classList.add('no-logo')">
+        <svg class="logo-fallback" viewBox="0 0 40 44" aria-hidden="true">
+          <path d="M20 2.5 35.5 7.5V20c0 10.5-7.6 17.4-15.5 21.5C12.1 37.4 4.5 30.5 4.5 20V7.5Z" fill="#2c2d72" stroke="#d9d44a" stroke-width="2.6" stroke-linejoin="round"/>
+          <text x="20" y="25.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#e8e26a" font-family="Leelawadee UI, Tahoma, sans-serif">ปส.</text>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <span class="brand-title">ระบบบันทึกพัสดุยาเสพติด</span>
+        <span class="brand-sub">จัดทำโดย ด่านตรวจยานพาหนะชุมพร</span>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="เมนูหลัก">
+      <a class="nav-link" href="#/list" data-view="list">
+        <svg class="i" aria-hidden="true"><use href="#i-list"/></svg><span>รายการพัสดุ</span><span class="nav-count" id="countList"></span>
+      </a>
+      <a class="nav-link" href="#/graph" data-view="graph">
+        <svg class="i" aria-hidden="true"><use href="#i-graph"/></svg><span>กราฟเชื่อมโยง</span>
+      </a>
+      <a class="nav-link" href="#/groups" data-view="groups">
+        <svg class="i" aria-hidden="true"><use href="#i-network"/></svg><span>กลุ่มเครือข่าย</span><span class="nav-count" id="countGroups"></span>
+      </a>
+    </nav>
+
+    <div class="appbar-actions">
+      <div class="menu-wrap">
+        <button type="button" class="icon-btn on-nav" id="btnMenu" aria-haspopup="menu" aria-expanded="false" aria-controls="menu" title="ส่งออก / สำรองข้อมูล">
+          <svg class="i" aria-hidden="true"><use href="#i-more"/></svg><span class="sr-only">เมนูข้อมูล</span>
+        </button>
+        <div class="menu" id="menu" role="menu" hidden>
+          <button type="button" role="menuitem" data-menu="import">
+            <svg class="i" aria-hidden="true"><use href="#i-paste"/></svg>
+            <span><b>นำเข้าข้อมูล (ข้อความ / Excel)</b><small>วางผลค้นหาพัสดุ หรือเลือกไฟล์ .xlsx .csv ระบบแยกข้อมูลและจับคู่ให้อัตโนมัติ</small></span>
+          </button>
+          <button type="button" role="menuitem" data-menu="csv">
+            <svg class="i" aria-hidden="true"><use href="#i-sheet"/></svg>
+            <span><b>ส่งออกรายการพัสดุ (Excel)</b><small id="csvHint">ไฟล์ CSV ตามผลการค้นหา</small></span>
+          </button>
+          <button type="button" role="menuitem" data-menu="numbers">
+            <svg class="i" aria-hidden="true"><use href="#i-network"/></svg>
+            <span><b>ส่งออกหมายเลขและเครือข่าย (Excel)</b><small>หมายเลข ชื่อที่ใช้ และหมายเลขที่เชื่อมโยง</small></span>
+          </button>
+          <button type="button" role="menuitem" data-menu="backup">
+            <svg class="i" aria-hidden="true"><use href="#i-download"/></svg>
+            <span><b>สำรองข้อมูล</b><small>บันทึกทุกรายการพร้อมรูปภาพเป็นไฟล์</small></span>
+          </button>
+          <button type="button" role="menuitem" data-menu="restore">
+            <svg class="i" aria-hidden="true"><use href="#i-upload"/></svg>
+            <span><b>กู้คืนจากไฟล์สำรอง</b><small>นำเข้าไฟล์ .jsonl ที่เคยสำรองไว้</small></span>
+          </button>
+          <div class="menu-foot" id="menuFoot"></div>
+        </div>
+      </div>
+      <button type="button" class="btn nav-btn" id="btnImport" title="นำเข้าข้อมูลจากข้อความผลค้นหาพัสดุ หรือไฟล์ Excel/CSV (กด Ctrl+V หรือลากไฟล์มาวางที่หน้าใดก็ได้)">
+        <svg class="i" aria-hidden="true"><use href="#i-paste"/></svg><span>นำเข้าข้อมูล</span>
+      </button>
+      <button type="button" class="btn gold" id="btnAdd" title="บันทึกพัสดุใหม่ (N)">
+        <svg class="i" aria-hidden="true"><use href="#i-plus"/></svg><span>บันทึกพัสดุ</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ═════════ รายการพัสดุ + ค้นหา ═════════ -->
+  <section class="view" id="view-list" data-view="list" aria-label="รายการพัสดุ">
+    <div class="container">
+      <div class="banner" id="banner" hidden></div>
+
+      <div class="search search-lg" role="search">
+        <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="q" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search"
+               placeholder="ค้นหาเลขพัสดุ ชื่อ เบอร์โทร หรือของกลาง" aria-label="ค้นหาพัสดุ">
+        <kbd class="kbd" aria-hidden="true">/</kbd>
+        <button type="button" class="search-clear" id="qClear" aria-label="ล้างคำค้น" hidden>
+          <svg class="i" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </div>
+
+      <div class="filters">
+        <div class="chips" id="chips" role="radiogroup" aria-label="ค้นหาจากช่อง">
+          <button type="button" class="chip" role="radio" data-field="all">ทั้งหมด</button>
+          <button type="button" class="chip" role="radio" data-field="tracking">เลขพัสดุ</button>
+          <button type="button" class="chip" role="radio" data-field="sender"><span class="dot send"></span>ผู้ส่ง</button>
+          <button type="button" class="chip" role="radio" data-field="receiver"><span class="dot recv"></span>ผู้รับ</button>
+          <button type="button" class="chip" role="radio" data-field="senderPhone">เบอร์ผู้ส่ง</button>
+          <button type="button" class="chip" role="radio" data-field="receiverPhone">เบอร์ผู้รับ</button>
+          <button type="button" class="chip" role="radio" data-field="customer"><span class="dot cust"></span>ลูกค้า</button>
+        </div>
+        <div class="filter-row">
+          <label class="select">
+            <svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>
+            <select id="range" aria-label="ช่วงวันที่">
+              <option value="all">ทุกช่วงเวลา</option>
+              <option value="today">วันนี้</option>
+              <option value="yesterday">เมื่อวาน</option>
+              <option value="7d">7 วันล่าสุด</option>
+              <option value="30d">30 วันล่าสุด</option>
+              <option value="90d">90 วันล่าสุด</option>
+              <option value="custom">กำหนดเอง…</option>
+            </select>
+          </label>
+          <span class="custom-range" id="customRange" hidden>
+            <input type="date" id="from" aria-label="ตั้งแต่วันที่">
+            <span class="muted">ถึง</span>
+            <input type="date" id="to" aria-label="ถึงวันที่">
+          </span>
+          <label class="select" id="drugFilterWrap" hidden>
+            <svg class="i" aria-hidden="true"><use href="#i-pill"/></svg>
+            <select id="drugFilter" aria-label="ชนิดยาเสพติด"></select>
+          </label>
+          <label class="select" id="courierFilterWrap" hidden>
+            <svg class="i" aria-hidden="true"><use href="#i-truck"/></svg>
+            <select id="courierFilter" aria-label="บริษัทขนส่ง"></select>
+          </label>
+          <label class="select">
+            <select id="sort" aria-label="เรียงลำดับ">
+              <option value="new">ล่าสุดก่อน</option>
+              <option value="old">เก่าสุดก่อน</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="group-filter" id="groupFilter" hidden></div>
+      <div class="meta" id="meta" aria-live="polite"></div>
+
+      <div class="thead" id="thead" aria-hidden="true">
+        <span></span>
+        <span>เลขพัสดุ</span>
+        <span><span class="dot send"></span>ผู้ส่ง</span>
+        <span><span class="dot recv"></span>ผู้รับ</span>
+        <span>ของกลาง</span>
+        <span class="r">เวลา</span>
+      </div>
+      <div class="list" id="list" aria-label="รายการพัสดุ"></div>
+      <div id="sentinel" aria-hidden="true"></div>
+      <div class="empty" id="empty" hidden></div>
+    </div>
+  </section>
+
+  <!-- ═════════ กราฟเชื่อมโยงหมายเลข ═════════ -->
+  <section class="view" id="view-graph" data-view="graph" aria-label="กราฟเชื่อมโยงหมายเลข" hidden>
+    <div class="graph-layout">
+      <div class="graph-main">
+        <div class="graph-toolbar">
+          <label class="select">
+            <svg class="i" aria-hidden="true"><use href="#i-network"/></svg>
+            <select id="gShow" aria-label="เลือกเครือข่ายที่จะแสดง"></select>
+          </label>
+          <button type="button" class="btn small" id="gRename" hidden title="ตั้งชื่อเครือข่ายที่แสดงอยู่">
+            <svg class="i" aria-hidden="true"><use href="#i-pencil"/></svg><span>ตั้งชื่อ</span>
+          </button>
+          <div class="search search-sm" role="search">
+            <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+            <input id="gSearch" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search"
+                   placeholder="หาหมายเลขหรือชื่อในกราฟ" aria-label="หาหมายเลขหรือชื่อในกราฟ">
+          </div>
+          <span class="g-found muted" id="gFound" aria-live="polite"></span>
+          <label class="check" title="เชื่อมหมายเลขที่ต่างกันแต่ใช้ชื่อเดียวกัน หรือที่อยู่เดียวกัน (เส้นประ) · เลขบัตรประชาชนเดียวกันเชื่อมให้เสมอ">
+            <input type="checkbox" data-link-names> เชื่อมชื่อ/ที่อยู่ซ้ำ
+          </label>
+          <span class="spacer"></span>
+          <div class="btn-group" role="group" aria-label="ซูม">
+            <button type="button" class="icon-btn" id="gZoomOut" title="ย่อ" aria-label="ย่อ"><svg class="i" aria-hidden="true"><use href="#i-zoom-out"/></svg></button>
+            <button type="button" class="icon-btn" id="gZoomIn" title="ขยาย" aria-label="ขยาย"><svg class="i" aria-hidden="true"><use href="#i-zoom-in"/></svg></button>
+            <button type="button" class="icon-btn" id="gFit" title="พอดีจอ" aria-label="พอดีจอ"><svg class="i" aria-hidden="true"><use href="#i-fit"/></svg></button>
+          </div>
+          <button type="button" class="btn small" id="gExport">
+            <svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span>บันทึกภาพ</span>
+          </button>
+        </div>
+        <div class="graph-stage" id="graphStage">
+          <div class="graph-legend" aria-label="คำอธิบายสัญลักษณ์">
+            <span class="lg"><svg class="pbox send" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pbox"/></svg>ผู้ส่ง</span>
+            <span class="lg"><svg class="pbox recv" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pbox"/></svg>ผู้รับ</span>
+            <span class="lg"><svg class="pbox both" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pbox"/></svg>ทั้งส่งและรับ</span>
+            <span class="lg"><svg class="pbox cust" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pbox"/></svg>ลูกค้าผู้ฝากส่ง</span>
+            <span class="lg"><svg class="pbox hollow muted-line" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pbox"/></svg>ไม่มีเบอร์ (ใช้ชื่อ)</span>
+            <span class="lg"><span class="lg-line arrow"></span>ส่งพัสดุ (เส้นหนา = หลายชิ้น)</span>
+            <span class="lg"><span class="lg-line dash"></span>ชื่อ/ที่อยู่/บัตรประชาชนเดียวกัน</span>
+            <span class="lg"><span class="lg-line dot"></span>ลูกค้าฝากส่ง</span>
+          </div>
+          <div class="graph-empty" id="graphEmpty" hidden>
+            <div class="empty-art"><svg class="i" aria-hidden="true"><use href="#i-graph"/></svg></div>
+            <h2>ยังไม่มีหมายเลขที่เชื่อมโยงกัน</h2>
+            <p>กราฟจะแสดงเมื่อมีพัสดุตั้งแต่ 2 รายการขึ้นไปที่ใช้เบอร์โทรหรือชื่อเดียวกัน<br>เลือก “ทั้งหมด รวมพัสดุเดี่ยว” เพื่อดูทุกหมายเลข</p>
+          </div>
+        </div>
+      </div>
+      <aside class="graph-panel" id="graphPanel" aria-label="รายละเอียดหมายเลข"></aside>
+    </div>
+  </section>
+
+  <!-- ═════════ กลุ่มเครือข่ายพัสดุ ═════════ -->
+  <section class="view" id="view-groups" data-view="groups" aria-label="กลุ่มเครือข่ายพัสดุ" hidden>
+    <div class="container">
+      <div class="stat-row" id="groupStats"></div>
+      <div class="groups-tools">
+        <div class="search search-sm" role="search">
+          <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="groupSearch" type="search" autocomplete="off" spellcheck="false"
+                 placeholder="หาเครือข่ายจากหมายเลข ชื่อ หรือเลขพัสดุ" aria-label="ค้นหาเครือข่าย">
+        </div>
+        <label class="check" title="เชื่อมหมายเลขที่ต่างกันแต่ใช้ชื่อเดียวกัน หรือที่อยู่เดียวกัน · เลขบัตรประชาชนเดียวกันเชื่อมให้เสมอ">
+          <input type="checkbox" data-link-names> เชื่อมชื่อ/ที่อยู่ซ้ำ
+        </label>
+        <span class="spacer"></span>
+        <label class="select">
+          <select id="groupSort" aria-label="เรียงเครือข่าย">
+            <option value="size">พัสดุมากที่สุดก่อน</option>
+            <option value="recent">พบล่าสุดก่อน</option>
+          </select>
+        </label>
+      </div>
+      <p class="groups-note muted">เครือข่าย = กลุ่มหมายเลขที่เชื่อมถึงกันผ่านพัสดุ (ผู้ส่ง → ผู้รับ) หรือใช้ชื่อ/ที่อยู่/เลขบัตรประชาชนผู้ฝากส่งเดียวกัน · เรียงหมายเลขเครือข่ายตามจำนวนพัสดุ</p>
+      <div class="group-grid" id="groupGrid"></div>
+      <div class="empty" id="groupsEmpty" hidden></div>
+    </div>
+  </section>
+</main>
+
+<!-- ═════════ ฟอร์มบันทึก / แก้ไขพัสดุ ═════════ -->
+<dialog id="formDialog" class="sheet wide" aria-labelledby="formTitle">
+  <form id="parcelForm" class="sheet-inner" novalidate autocomplete="off">
+    <header class="sheet-head">
+      <h2 id="formTitle">บันทึกพัสดุใหม่</h2>
+      <button type="button" class="icon-btn" data-close aria-label="ปิด"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </header>
+
+    <div class="sheet-body">
+      <p class="form-tip" id="formTip"><svg class="i" aria-hidden="true"><use href="#i-paste"/></svg><span>มีข้อความผลค้นหาพัสดุ? กด <kbd>Ctrl</kbd>+<kbd>V</kbd> ในฟอร์มนี้ ระบบจะแยกเลขพัสดุ ชื่อ เบอร์ และที่อยู่ ใส่ช่องให้อัตโนมัติ</span></p>
+      <p class="form-extra" id="formExtra" hidden></p>
+      <div class="grid-track">
+        <div class="field">
+          <label for="fTracking">เลขพัสดุ <span class="req" aria-hidden="true">*</span></label>
+          <input id="fTracking" class="code-input" maxlength="60" required autocapitalize="characters" spellcheck="false"
+                 placeholder="สแกนหรือพิมพ์เลขพัสดุ" aria-describedby="trackingMsg">
+          <p class="msg" id="trackingMsg" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="fCourier">บริษัทขนส่ง</label>
+          <input id="fCourier" list="courierList" maxlength="60" placeholder="เช่น Flash Express">
+        </div>
+        <div class="field">
+          <label for="fDate">วันที่ (ตรวจพบ/ส่ง)</label>
+          <input id="fDate" type="datetime-local">
+          <p class="msg" id="dateMsg"></p>
+        </div>
+        <div class="field">
+          <label for="fDelivered">วันส่งมอบ</label>
+          <input id="fDelivered" type="datetime-local">
+        </div>
+        <div class="field">
+          <label for="fStatus">สถานะ</label>
+          <input id="fStatus" list="statusList" maxlength="60" placeholder="เช่น เซ็นรับแล้ว">
+        </div>
+      </div>
+
+      <div class="party-grid">
+        <section class="party" aria-labelledby="hSender">
+          <h3 class="party-title" id="hSender"><span class="party-icon send"><svg class="i" aria-hidden="true"><use href="#i-send"/></svg></span>ผู้ส่ง</h3>
+          <div class="field">
+            <label for="fSender">ชื่อผู้ส่ง</label>
+            <input id="fSender" list="peopleList" maxlength="120" placeholder="ชื่อ-นามสกุล หรือชื่อร้าน">
+          </div>
+          <div class="field">
+            <label for="fSenderPhone">เบอร์ผู้ส่ง</label>
+            <input id="fSenderPhone" type="tel" inputmode="tel" maxlength="30" placeholder="0XX-XXX-XXXX" aria-describedby="senderPhoneMsg">
+            <p class="msg" id="senderPhoneMsg" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="fSenderAddress">ที่อยู่ผู้ส่ง</label>
+            <textarea id="fSenderAddress" rows="2" maxlength="400" placeholder="ไม่บังคับ"></textarea>
+          </div>
+        </section>
+        <section class="party" aria-labelledby="hReceiver">
+          <h3 class="party-title" id="hReceiver"><span class="party-icon recv"><svg class="i" aria-hidden="true"><use href="#i-recv"/></svg></span>ผู้รับ</h3>
+          <div class="field">
+            <label for="fReceiver">ชื่อผู้รับ</label>
+            <input id="fReceiver" list="peopleList" maxlength="120" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div class="field">
+            <label for="fReceiverPhone">เบอร์ผู้รับ</label>
+            <input id="fReceiverPhone" type="tel" inputmode="tel" maxlength="30" placeholder="0XX-XXX-XXXX" aria-describedby="receiverPhoneMsg">
+            <p class="msg" id="receiverPhoneMsg" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="fReceiverAddress">ที่อยู่ผู้รับ</label>
+            <textarea id="fReceiverAddress" rows="2" maxlength="400" placeholder="ไม่บังคับ"></textarea>
+          </div>
+        </section>
+      </div>
+
+      <section class="evidence" aria-labelledby="hCustomer">
+        <h3 class="block-title" id="hCustomer"><span class="party-icon cust"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg></span>ลูกค้า (ผู้ฝากส่ง) <span class="muted">(ไม่บังคับ)</span></h3>
+        <div class="grid-3">
+          <div class="field">
+            <label for="fCustomer">ชื่อลูกค้า / ผู้ฝากส่ง</label>
+            <input id="fCustomer" list="peopleList" maxlength="120" placeholder="ชื่อบัญชีหรือผู้ที่นำมาฝากส่ง">
+          </div>
+          <div class="field">
+            <label for="fCustomerPhone">เบอร์ลูกค้า</label>
+            <input id="fCustomerPhone" type="tel" inputmode="tel" maxlength="30" placeholder="0XX-XXX-XXXX" aria-describedby="customerPhoneMsg">
+            <p class="msg" id="customerPhoneMsg" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="fIdCard">เลขบัตรประชาชนผู้ฝากส่ง</label>
+            <input id="fIdCard" inputmode="numeric" maxlength="30" placeholder="X-XXXX-XXXXX-XX-X" autocomplete="off" aria-describedby="idCardMsg">
+            <p class="msg" id="idCardMsg" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="evidence" aria-labelledby="hProduct">
+        <h3 class="block-title" id="hProduct"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg>รายละเอียดพัสดุ <span class="muted">(ไม่บังคับ)</span></h3>
+        <div class="grid-4">
+          <div class="field">
+            <label for="fProductType">ประเภทสินค้า</label>
+            <input id="fProductType" list="productList" maxlength="80" placeholder="เช่น อุปกรณ์ไอที">
+          </div>
+          <div class="field">
+            <label for="fWeight">น้ำหนัก</label>
+            <input id="fWeight" maxlength="30" placeholder="เช่น 0.44 kg">
+          </div>
+          <div class="field">
+            <label for="fSize">ขนาดกล่อง</label>
+            <input id="fSize" maxlength="40" placeholder="เช่น 20×15×6 cm">
+          </div>
+          <div class="field">
+            <label for="fFee">ค่าขนส่ง</label>
+            <input id="fFee" maxlength="30" placeholder="เช่น 35.00 บาท">
+          </div>
+        </div>
+      </section>
+
+      <section class="evidence" aria-labelledby="hEvidence">
+        <h3 class="block-title" id="hEvidence"><svg class="i" aria-hidden="true"><use href="#i-pill"/></svg>ของกลาง <span class="muted">(ไม่บังคับ)</span></h3>
+        <div class="grid-2">
+          <div class="field">
+            <label for="fDrug">ชนิดยาเสพติด</label>
+            <input id="fDrug" list="drugList" maxlength="60" placeholder="เช่น ยาบ้า, ไอซ์">
+          </div>
+          <div class="field">
+            <label for="fAmount">จำนวน / น้ำหนัก</label>
+            <input id="fAmount" maxlength="60" placeholder="เช่น 2,000 เม็ด หรือ 500 กรัม">
+          </div>
+        </div>
+      </section>
+
+      <div class="field">
+        <div class="label-row"><span class="label" id="photoLabel">รูปภาพและไฟล์แนบ</span><span class="muted small" id="photoCount">ไม่จำกัดจำนวน</span></div>
+        <div class="dropzone" id="dropzone" role="group" aria-labelledby="photoLabel">
+          <div class="ph-grid">
+            <div class="ph-list" id="photoGrid"></div>
+            <button type="button" class="ph-add" id="btnPick"><svg class="i" aria-hidden="true"><use href="#i-clip"/></svg><span>เลือกไฟล์</span></button>
+            <button type="button" class="ph-add" id="btnCamera"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg><span>ถ่ายรูป</span></button>
+          </div>
+          <p class="drop-hint">แนบได้ทุกชนิดไม่จำกัดจำนวน (รูป PDF เอกสาร วิดีโอ) เก็บไฟล์ต้นฉบับ · ลากไฟล์มาวาง หรือกด <kbd>Ctrl</kbd>+<kbd>V</kbd> เพื่อวางรูป</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="fNote">หมายเหตุ <span class="muted">(ไม่บังคับ)</span></label>
+        <textarea id="fNote" rows="2" maxlength="1000" placeholder="เช่น ต้นทาง–ปลายทาง ทะเบียนรถขนส่ง ผลการดำเนินการ"></textarea>
+      </div>
+    </div>
+
+    <footer class="sheet-foot">
+      <label class="check" id="keepOpenWrap" title="บันทึกแล้วเปิดฟอร์มใหม่ทันที โดยคงบริษัทขนส่งและวันที่ไว้">
+        <input type="checkbox" id="keepOpen"> บันทึกต่อเนื่อง
+      </label>
+      <span class="spacer"></span>
+      <span class="hint-kbd"><kbd>Ctrl</kbd>+<kbd>Enter</kbd></span>
+      <button type="button" class="btn" data-close>ยกเลิก</button>
+      <button type="submit" class="btn primary" id="btnSave"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span>บันทึก</span></button>
+    </footer>
+  </form>
+</dialog>
+
+<!-- ═════════ รายละเอียดพัสดุ ═════════ -->
+<dialog id="detailDialog" class="sheet wide" aria-labelledby="dTracking">
+  <div class="sheet-inner">
+    <header class="sheet-head">
+      <div class="d-head">
+        <span class="eyebrow">เลขพัสดุ</span>
+        <div class="d-track">
+          <span id="dTracking" class="code"></span>
+          <button type="button" class="icon-btn sm" id="dCopy" title="คัดลอกเลขพัสดุ" aria-label="คัดลอกเลขพัสดุ"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        </div>
+        <div class="d-sub" id="dSub"></div>
+      </div>
+      <button type="button" class="icon-btn" data-close aria-label="ปิด"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="sheet-body">
+      <ol class="timeline" id="dTimeline" aria-label="ลำดับการจัดส่ง"></ol>
+      <div class="parties">
+        <section class="party-card" id="dSender">
+          <h3 class="eyebrow"><span class="dot send"></span>ผู้ส่ง</h3>
+          <p class="name"></p>
+          <div class="phone-row">
+            <a class="phone-link"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg><span></span></a>
+            <button type="button" class="icon-btn sm" data-copy-phone title="คัดลอกเบอร์" aria-label="คัดลอกเบอร์ผู้ส่ง"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+          </div>
+          <div class="id-row" hidden>
+            <svg class="i" aria-hidden="true"><use href="#i-idcard"/></svg><span class="id-lbl">บัตรประชาชนผู้ฝากส่ง</span><span class="id-num"></span>
+            <button type="button" class="icon-btn sm" data-copy-id title="คัดลอกเลขบัตร" aria-label="คัดลอกเลขบัตรประชาชน"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+          </div>
+          <p class="addr"></p>
+        </section>
+        <div class="flow-arrow" aria-hidden="true"><svg class="i"><use href="#i-arrow-right"/></svg></div>
+        <section class="party-card" id="dReceiver">
+          <h3 class="eyebrow"><span class="dot recv"></span>ผู้รับ</h3>
+          <p class="name"></p>
+          <div class="phone-row">
+            <a class="phone-link"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg><span></span></a>
+            <button type="button" class="icon-btn sm" data-copy-phone title="คัดลอกเบอร์" aria-label="คัดลอกเบอร์ผู้รับ"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+          </div>
+          <p class="addr"></p>
+        </section>
+      </div>
+      <section class="party-card" id="dCustomer" hidden>
+        <h3 class="eyebrow"><span class="dot cust"></span>ลูกค้า (ผู้ฝากส่ง)</h3>
+        <p class="name"></p>
+        <div class="phone-row">
+          <a class="phone-link"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg><span></span></a>
+          <button type="button" class="icon-btn sm" data-copy-phone title="คัดลอกเบอร์" aria-label="คัดลอกเบอร์ลูกค้า"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        </div>
+        <div class="id-row" hidden>
+          <svg class="i" aria-hidden="true"><use href="#i-idcard"/></svg><span class="id-lbl">บัตรประชาชนผู้ฝากส่ง</span><span class="id-num"></span>
+          <button type="button" class="icon-btn sm" data-copy-id title="คัดลอกเลขบัตร" aria-label="คัดลอกเลขบัตรประชาชน"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        </div>
+        <p class="addr"></p>
+      </section>
+      <section class="d-block" id="dProduct" hidden>
+        <h3 class="eyebrow"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg>รายละเอียดพัสดุ</h3>
+        <dl class="spec-grid" id="dProductBody"></dl>
+      </section>
+      <section class="d-block" id="dDelivery" hidden>
+        <h3 class="eyebrow"><svg class="i" aria-hidden="true"><use href="#i-truck"/></svg>ข้อมูลการจัดส่ง</h3>
+        <div class="delivery" id="dDeliveryBody"></div>
+      </section>
+      <section class="d-block" id="dExtras" hidden>
+        <h3 class="eyebrow"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>ข้อมูลเพิ่มเติมจากต้นทาง</h3>
+        <dl class="spec-grid" id="dExtrasBody"></dl>
+      </section>
+      <section class="d-block" id="dEvidence">
+        <h3 class="eyebrow"><svg class="i" aria-hidden="true"><use href="#i-pill"/></svg>ของกลาง</h3>
+        <p class="d-evidence"><b id="dDrug"></b> <span id="dAmount"></span></p>
+      </section>
+      <section class="d-block" id="dPhotosWrap">
+        <h3 class="eyebrow"><svg class="i" aria-hidden="true"><use href="#i-clip"/></svg>รูปภาพและไฟล์แนบ <span id="dPhotoCount"></span></h3>
+        <div class="gallery" id="dGallery"></div>
+        <ul class="file-list" id="dFiles"></ul>
+      </section>
+      <section class="d-block" id="dNoteWrap">
+        <h3 class="eyebrow">หมายเหตุ</h3>
+        <p class="d-note" id="dNote"></p>
+      </section>
+      <section class="d-block" id="dNet"></section>
+      <p class="d-meta" id="dMeta"></p>
+    </div>
+    <footer class="sheet-foot">
+      <button type="button" class="btn danger-ghost" id="dDelete"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg><span>ลบ</span></button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" data-close>ปิด</button>
+      <button type="button" class="btn primary" id="dEdit"><svg class="i" aria-hidden="true"><use href="#i-pencil"/></svg><span>แก้ไข</span></button>
+    </footer>
+  </div>
+</dialog>
+
+<!-- ═════════ นำเข้าข้อมูลจากข้อความผลค้นหาพัสดุ ═════════ -->
+<dialog id="importDialog" class="sheet wide" aria-labelledby="impTitle">
+  <div class="sheet-inner">
+    <header class="sheet-head">
+      <div class="d-head">
+        <h2 id="impTitle">นำเข้าข้อมูลพัสดุ</h2>
+        <p class="muted small imp-lead">วางข้อความผลค้นหาพัสดุ หรือเลือกไฟล์ Excel (.xlsx) / CSV ระบบจะแยกเลขพัสดุ ผู้ส่ง ผู้รับ เบอร์โทร ที่อยู่ และรายละเอียดอื่นให้อัตโนมัติ แล้วจับคู่เป็นเครือข่ายจากเบอร์โทร เลขบัตรประชาชน ชื่อ และที่อยู่ · อ่านไฟล์ในเครื่องนี้เท่านั้น ไม่ส่งออกอินเทอร์เน็ต</p>
+      </div>
+      <button type="button" class="icon-btn" data-close aria-label="ปิด"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="sheet-body" id="impBody">
+      <div class="imp-input" id="impInput">
+        <div class="field" id="impTextField">
+          <div class="label-row">
+            <label for="impText">ข้อความ หรือช่วงเซลล์ที่คัดลอกจาก Excel</label>
+            <button type="button" class="link-btn" id="impFileBtn">เลือกไฟล์ (.xlsx .csv .txt)</button>
+          </div>
+          <textarea id="impText" rows="7" spellcheck="false" placeholder="วางข้อความที่นี่ (Ctrl+V) เช่น&#10;ℹ️ เลขพัสดุ : TH0000000000A&#10;➡️ ผู้ส่ง : ชื่อ นามสกุล 08XXXXXXXX&#10;🔹 ที่อยู่ : …&#10;🛄 ผู้รับ : ชื่อ นามสกุล 09XXXXXXXX&#10;📋 ส่งมอบ : 2026-01-01 10:00:00&#10;&#10;หรือลากไฟล์ Excel / CSV มาวางที่หน้านี้"></textarea>
+        </div>
+        <div class="imp-file" id="impFileCard" hidden>
+          <span class="imp-file-icon" aria-hidden="true"><svg class="i"><use href="#i-sheet"/></svg></span>
+          <div class="imp-file-main">
+            <b id="impFileName"></b>
+            <small id="impFileMeta"></small>
+          </div>
+          <label class="imp-sheet" id="impSheetWrap" hidden>
+            <span>แผ่นงาน</span>
+            <select id="impSheet"></select>
+          </label>
+          <div class="imp-file-actions">
+            <button type="button" class="btn small" id="impFileChange"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg><span>เปลี่ยนไฟล์</span></button>
+            <button type="button" class="icon-btn sm" id="impFileClear" title="เอาไฟล์ออก (กลับไปวางข้อความ)" aria-label="เอาไฟล์ออก"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+          </div>
+        </div>
+        <details class="imp-map" id="impMap" hidden>
+          <summary><svg class="i" aria-hidden="true"><use href="#i-sheet"/></svg><span id="impMapSummary">การจับคู่คอลัมน์</span></summary>
+          <p class="muted small">ระบบจับคู่ชื่อคอลัมน์ให้อัตโนมัติ เปลี่ยนเองได้ถ้าไม่ตรง · คอลัมน์ที่ “เก็บเป็นข้อมูลเพิ่มเติม” จะแสดงในรายละเอียดพัสดุและค้นหาได้ · แสดงเฉพาะคอลัมน์ที่มีข้อมูล</p>
+          <div class="imp-map-scroll">
+            <table class="imp-map-table">
+              <thead><tr><th scope="col">คอลัมน์ในไฟล์ <small>(ตัวอย่างค่า)</small></th><th scope="col">นำเข้าเป็น</th></tr></thead>
+              <tbody id="impMapBody"></tbody>
+            </table>
+          </div>
+        </details>
+        <div class="grid-2" id="impOptions">
+          <div class="field">
+            <label for="impCourier">บริษัทขนส่ง <span class="muted">(ใส่ให้ทุกรายการ ไม่บังคับ)</span></label>
+            <input id="impCourier" list="courierList" maxlength="60" placeholder="เช่น Flash Express">
+          </div>
+          <div class="field">
+            <label for="impNote">หมายเหตุ <span class="muted">(ใส่ให้ทุกรายการ ไม่บังคับ)</span></label>
+            <input id="impNote" maxlength="300" placeholder="เช่น เลขคดี / ผู้ต้องหา">
+          </div>
+        </div>
+      </div>
+      <div class="imp-summary" id="impSummary" aria-live="polite"></div>
+      <ul class="imp-list" id="impList"></ul>
+      <div class="imp-done" id="impDone" hidden></div>
+    </div>
+    <footer class="sheet-foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn" data-close id="impCancel">ยกเลิก</button>
+      <button type="button" class="btn primary" id="impGo" disabled><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span>นำเข้า</span></button>
+    </footer>
+  </div>
+</dialog>
+
+<!-- ตั้งชื่อเครือข่าย -->
+<dialog id="nameDialog" class="alert" aria-labelledby="nmTitle">
+  <form method="dialog" id="nameForm">
+    <h2 id="nmTitle">ตั้งชื่อเครือข่าย</h2>
+    <p class="muted small" id="nmSub"></p>
+    <div class="field">
+      <label for="nmInput">ชื่อเครือข่าย</label>
+      <input id="nmInput" maxlength="80" autocomplete="off" placeholder="เช่น เครือข่ายนายเอก, ขบวนการเชียงราย–สุราษฎร์">
+    </div>
+    <p class="muted small nm-hint">ชื่อจะผูกกับหมายเลขในเครือข่ายนี้ แม้ลำดับเครือข่ายเปลี่ยนหรือมีพัสดุเพิ่ม ชื่อก็ยังตามไป</p>
+    <div class="alert-actions">
+      <button type="button" class="btn danger-ghost" id="nmClear"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg><span>ล้างชื่อ</span></button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" data-close>ยกเลิก</button>
+      <button type="submit" class="btn primary" id="nmSave"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span>บันทึกชื่อ</span></button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ยืนยัน -->
+<dialog id="confirmDialog" class="alert" aria-labelledby="cfTitle" aria-describedby="cfBody">
+  <form method="dialog">
+    <h2 id="cfTitle"></h2>
+    <p id="cfBody"></p>
+    <div class="alert-actions">
+      <button class="btn" value="cancel" id="cfCancel">ยกเลิก</button>
+      <button class="btn primary" value="ok" id="cfOk">ตกลง</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- กล้อง (คอมพิวเตอร์) -->
+<dialog id="cameraDialog" class="camera" aria-label="ถ่ายรูปพัสดุ">
+  <div class="cam-stage">
+    <video id="camVideo" autoplay playsinline muted></video>
+    <div class="cam-flash" id="camFlash"></div>
+  </div>
+  <div class="cam-bar">
+    <button type="button" class="btn on-dark" data-close>เสร็จ</button>
+    <button type="button" class="shutter" id="btnShutter" aria-label="ถ่ายรูป"></button>
+    <span class="cam-count" id="camCount"></span>
+  </div>
+</dialog>
+
+<!-- ดูรูปขนาดใหญ่ -->
+<dialog id="lightbox" class="lightbox" aria-label="ดูรูปภาพ">
+  <img id="lbImg" alt="">
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="รูปก่อนหน้า"><svg class="i" aria-hidden="true"><use href="#i-chev-left"/></svg></button>
+  <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="รูปถัดไป"><svg class="i" aria-hidden="true"><use href="#i-chev-right"/></svg></button>
+  <div class="lb-top">
+    <span id="lbCount"></span>
+    <a class="lb-action" id="lbSave" download><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span>บันทึกรูป</span></a>
+    <button type="button" class="lb-action" data-close aria-label="ปิด"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+</dialog>
+
+<div id="toasts" popover="manual" aria-live="polite"></div>
+
+<input type="file" id="fileInput" multiple hidden>
+<input type="file" id="impFile" accept=".xlsx,.xlsm,.xls,.csv,.tsv,.txt,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" hidden>
+<input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+<input type="file" id="importInput" accept=".jsonl,.json,application/json" hidden>
+
+<datalist id="peopleList"></datalist>
+<datalist id="drugList"></datalist>
+<datalist id="courierList"></datalist>
+<datalist id="productList"></datalist>
+<datalist id="statusList">
+  <option value="เซ็นรับแล้ว"></option>
+  <option value="อยู่ระหว่างขนส่ง"></option>
+  <option value="ตรวจยึด"></option>
+  <option value="ตีกลับผู้ส่ง"></option>
+  <option value="รอตรวจสอบ"></option>
+</datalist>
+
+<noscript><p class="noscript">กรุณาเปิดใช้งาน JavaScript เพื่อใช้ระบบบันทึกพัสดุ</p></noscript>
+</body>
+</html>
